@@ -75,13 +75,23 @@
 #define LITERAL_POSITION .literal_position
 
 #undef JUMPTARGET
-#ifdef __PIC__
+#if defined(__FDPIC__)
+#define JUMPTARGET(name) name##@GOTFUNCDESC
+#define FDPIC_LOAD_JUMPTARGET(call_target, got_base, fd_pointer)\
+	add	fd_pointer, got_base, fd_pointer;		\
+	l32i	fd_pointer, fd_pointer, 0;			\
+	l32i	a11, fd_pointer, 4;				\
+	l32i	call_target, fd_pointer, 0;
+
+#elif defined(__PIC__)
 /* The "@PLT" suffix is currently a no-op for non-shared linking, but
    it doesn't hurt to use it conditionally for PIC code in case that
    changes someday.  */
 #define JUMPTARGET(name) name##@PLT
+#define FDPIC_LOAD_JUMPTARGET(call_target, got_base, fd_pointer)
 #else
 #define JUMPTARGET(name) name
+#define FDPIC_LOAD_JUMPTARGET(call_target, got_base, fd_pointer)
 #endif
 
 #ifndef FRAMESIZE
@@ -168,7 +178,7 @@
 #  define SYSCALL_ERROR_HANDLER						      \
 0:	neg	a2, a2;							      \
 	mov	a6, a2;							      \
-	movi	a4, __errno_location@PLT;				      \
+	movi	a4, JUMPTARGET(__errno_location);			      \
 	callx4	a4;						              \
 	s32i	a2, a6, 0;						      \
 	movi	a2, -1;							      \
@@ -179,7 +189,8 @@
 	addi	a1, a1, -16;						      \
 	s32i	a0, a1, 0;						      \
 	s32i	a2, a1, 4;						      \
-	movi	a0, __errno_location@PLT;				      \
+	movi	a0, JUMPTARGET(__errno_location);			      \
+	FDPIC_LOAD_JUMPTARGET(a0, a11, a0)				      \
 	callx0	a0;						              \
 	l32i	a0, a1, 0;						      \
 	l32i	a3, a1, 4;						      \
