@@ -102,7 +102,7 @@ __dl_update_loadaddr_hdr(struct elf32_fdpic_loadaddr loadaddr, void *addr,
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug)
-		_dl_dprintf(_dl_debug_file, "%i: changed mapping %x at %x (old %x), size %x\n",
+		_dl_dprintf(_dl_debug_file, "%i: changed mapping %x at %x (old %p), size %x\n",
 			loadaddr.map->nsegs - 1,
 			segdata->p_vaddr, segdata->addr, oldaddr, segdata->p_memsz);
 #endif

@@ -24,6 +24,9 @@
 
 	.text
 HIDDEN_ENTRY (_dl_tlsdesc_return)
+#ifdef __FDPIC__
+	l32i		a2, a2, 4
+#endif
 	rur.threadptr	a3
 	add		a2, a2, a3
 	abi_ret
@@ -53,7 +56,9 @@ END (_dl_tlsdesc_return)
 	 */
 
 HIDDEN_ENTRY (_dl_tlsdesc_dynamic)
-
+#ifdef __FDPIC__
+	l32i	a2, a2, 4
+#endif
 	/* dtv_t *dtv = (dtv_t *)THREAD_DTV(); */
 	rur.threadptr	a3
 	l32i	a4, a3, 0
@@ -87,6 +92,10 @@ HIDDEN_ENTRY (_dl_tlsdesc_dynamic)
 	addi	a1, a1, -16
 	s32i	a0, a1, 0
 	movi	a0, __tls_get_addr
+#ifdef __FDPIC__
+	l32i	a3, a11, 12
+	add	a0, a0, a3
+#endif
 	callx0	a0
 	l32i	a0, a1, 0
 	addi	a1, a1, 16
