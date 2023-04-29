@@ -314,7 +314,8 @@ hcompile.u= @$(disp_hcompile.u); $(cmd_hcompile.u)
 hcompile.o= @$(disp_hcompile.o); $(cmd_hcompile.o)
 
 define do_ar
-	@$(disp_ar) ; $(cmd_ar)
+	@$(disp_ar)
+	@$(cmd_ar)
 	@$(do_t_strip)
 endef
 define compile.u
