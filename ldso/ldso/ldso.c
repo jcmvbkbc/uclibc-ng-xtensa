@@ -352,6 +352,7 @@ static struct elf_resolve * add_ldso(struct elf_resolve *tpnt,
 									 ElfW(Addr) ldso_mapaddr,
 									 struct dyn_elf *rpnt)
 {
+		unsigned long *lpnt;
 		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) _dl_auxvt[AT_BASE].a_un.a_val;
 		ElfW(Phdr) *myppnt = (ElfW(Phdr) *)
 				DL_RELOC_ADDR(DL_GET_RUN_ADDR(load_addr, ldso_mapaddr),
@@ -387,6 +388,12 @@ static struct elf_resolve * add_ldso(struct elf_resolve *tpnt,
 		}
 		rpnt->dyn = tpnt;
 		tpnt->rtld_flags = RTLD_NOW | RTLD_GLOBAL; /* Must not be LAZY */
+
+		lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT]);
+#ifdef ALLOW_ZERO_PLTGOT
+		if (lpnt)
+#endif
+			INIT_GOT(lpnt, tpnt);
 
 	return tpnt;
 }
