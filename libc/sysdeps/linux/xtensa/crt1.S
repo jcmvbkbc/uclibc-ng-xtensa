@@ -95,7 +95,7 @@ _start:
 	l32i	a3, sp, 0	/* argc */
 	addi	a4, sp, 4	/* argv */
 	/* a5 is either 0 when static or set by the RTLD to the trld_fini */
-	mov	a7, a5
+	mov	a7, a13
 	/* unused stack_end argument is what used to be argc */
 	movi	a5, _init@GOTOFFFUNCDESC
 	add	a5, a5, a11
