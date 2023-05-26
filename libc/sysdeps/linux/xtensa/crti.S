@@ -3,6 +3,7 @@
 	.section .init
 	.align	4
 	.global	_init
+	.hidden _init
 	.type	_init, @function
 _init:
 #if defined(__XTENSA_WINDOWED_ABI__)
@@ -21,6 +22,7 @@ _init:
 	.section .fini
 	.align	4
 	.global	_fini
+	.hidden _fini
 	.type	_fini, @function
 _fini:
 #if defined(__XTENSA_WINDOWED_ABI__)
