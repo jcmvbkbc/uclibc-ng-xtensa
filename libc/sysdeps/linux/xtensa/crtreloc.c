@@ -33,11 +33,6 @@ not, see <http://www.gnu.org/licenses/>.  */
 /* This file is to be compiled into crt object files, to enable
    executables to easily self-relocate.  */
 
-union word {
-    char c[4];
-    void *v;
-};
-
 /* Compute the runtime address of pointer in the range [p,e), and then
    map the pointer pointed by it.  */
 static __always_inline void ***
@@ -49,28 +44,39 @@ reloc_range_indirect (void ***p, void ***e,
       if (*p != (void **)-1)
 	{
 	  void *ptr = __reloc_pointer (*p, map);
+
 	  if (ptr != (void *)-1)
 	    {
+	      unsigned long off = ((unsigned long)ptr & 3) * 8;
+	      unsigned long *pa = (unsigned long *)((unsigned long)ptr & -4);
+	      unsigned long v2;
 	      void *pt;
-	      if ((long)ptr & 3)
+
+	      if (off)
 		{
-		  unsigned char *c = ptr;
-		  int i;
-		  unsigned long v = 0;
-		  for (i = 0; i < 4; i++)
-		    v |= c[i] << 8 * i;
-		  pt = (void *)v;
+		  unsigned long v0, v1;
+#ifdef __XTENSA_EB__
+		  v0 = pa[1]; v1 = pa[0];
+		  v2 = (v1 >> (32 - off)) | (v0 << off);
+#else /* __XTENSA_EL__ */
+		  v0 = pa[0]; v1 = pa[1];
+		  v2 = (v0 << (32 - off)) | (v1 >> off);
+#endif
+		  pt = (void *)((v1 << (32 - off)) | (v0 >> off));
 		}
 	      else
 		pt = *(void**)ptr;
 	      pt = __reloc_pointer (pt, map);
-	      if ((long)ptr & 3)
+	      if (off)
 		{
-		  unsigned char *c = ptr;
-		  int i;
 		  unsigned long v = (unsigned long)pt;
-		  for (i = 0; i < 4; i++, v >>= 8)
-		    c[i] = v;
+#ifdef __XTENSA_EB__
+		  pa[0] = (v2 << (32 - off)) | (v >> off);
+		  pa[1] = (v << (32 - off)) | (v2 >> off);
+#else /* __XTENSA_EL__ */
+		  pa[0] = (v2 >> (32 - off)) | (v << off);
+		  pa[1] = (v >> (32 - off)) | (v2 << off);
+#endif
 		}
 	      else
 		*(void**)ptr = pt;
