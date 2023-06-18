@@ -111,7 +111,7 @@ __reloc_pointer (void *p,
   (__reloc_pointer ((void*)(ptr), \
 		    (loadaddr).map))
 
-attribute_hidden void*
+void*
 __self_reloc (const struct elf32_fdpic_loadmap *map, void ***p, void ***e);
 
 #endif /* _BITS_ELF_FDPIC_H */
