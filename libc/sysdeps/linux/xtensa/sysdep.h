@@ -204,12 +204,23 @@
 
 # endif /* !USE___THREAD */
 #else /* !_LIBC_REENTRANT */
+#ifdef __FDPIC__
+#define SYSCALL_ERROR_HANDLER						      \
+0:	movi	a4, errno@GOT;						      \
+	add	a4, a4, a11;						      \
+	l32i	a4, a4, 0;						      \
+	neg	a2, a2;							      \
+	s32i	a2, a4, 0;						      \
+	movi	a2, -1;							      \
+	j	.Lpseudo_end;
+#else
 #define SYSCALL_ERROR_HANDLER						      \
 0:	movi	a4, errno;						      \
 	neg	a2, a2;							      \
 	s32i	a2, a4, 0;						      \
 	movi	a2, -1;							      \
 	j	.Lpseudo_end;
+#endif /* __FDPIC__ */
 #endif /* _LIBC_REENTRANT */
 
 #endif	/* __ASSEMBLER__ */
