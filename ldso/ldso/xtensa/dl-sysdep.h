@@ -134,6 +134,16 @@ while (0)
 
 #undef INIT_GOT
 #include "../fdpic/dl-sysdep.h"
+#undef INIT_GOT
+#define INIT_GOT(GOT_BASE,MODULE) \
+{				\
+  (MODULE)->loadaddr.got_value = (GOT_BASE); \
+  GOT_BASE[0] = ((unsigned long *)&_dl_linux_resolve)[0]; \
+  GOT_BASE[1] = ((unsigned long *)&_dl_linux_resolve)[1]; \
+  GOT_BASE[2] = (unsigned long) MODULE; \
+  GOT_BASE[3] = (MODULE)->loadaddr.map->segs[0].addr - (MODULE)->loadaddr.map->segs[0].p_vaddr; \
+}
+
 #endif /* __FDPIC__ */
 
 /* Return the run-time load address of the shared object.  */

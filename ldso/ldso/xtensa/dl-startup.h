@@ -42,6 +42,7 @@ __asm__ (
     "	callx0  a0\n"
 
     /* call _dl_start */
+    "	s32i	a15, a2, 12\n"
     "	mov	a3, a12\n"
     "	mov	a4, a13\n"
     "	mov	a5, a14\n"

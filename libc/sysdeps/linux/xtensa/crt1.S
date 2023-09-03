@@ -90,6 +90,7 @@ _start:
 	callx0	a0
 
 	mov	a11, a2
+	s32i	a15, a11, 12
 	movi	a2, main@GOTOFFFUNCDESC
 	add	a2, a2, a11
 	l32i	a3, sp, 0	/* argc */
