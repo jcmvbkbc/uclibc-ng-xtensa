@@ -238,6 +238,7 @@ extern int sigemptyset (sigset_t *__set) __THROW __nonnull ((1));
 
 /* Set all signals in SET.  */
 extern int sigfillset (sigset_t *__set) __THROW __nonnull ((1));
+libc_hidden_proto(sigfillset)
 
 /* Add SIGNO to SET.  */
 extern int sigaddset (sigset_t *__set, int __signo) __THROW __nonnull ((1));
