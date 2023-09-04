@@ -50,3 +50,4 @@ sigfillset (sigset_t *set)
 
   return 0;
 }
+libc_hidden_def(sigfillset)
