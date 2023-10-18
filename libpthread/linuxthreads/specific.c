@@ -25,8 +25,7 @@
 
 /* Table of keys. */
 
-static struct pthread_key_struct pthread_keys[PTHREAD_KEYS_MAX] =
-  { { 0, NULL } };
+static struct pthread_key_struct *pthread_keys;
 
 /* For debugging purposes put the maximum number of keys in a variable.  */
 const int __linuxthreads_pthread_keys_max = PTHREAD_KEYS_MAX;
@@ -43,6 +42,13 @@ int pthread_key_create(pthread_key_t * key, destr_function destr)
   int i;
 
   __pthread_mutex_lock(&pthread_keys_mutex);
+  if (!pthread_keys) {
+    pthread_keys = calloc(PTHREAD_KEYS_MAX, sizeof(*pthread_keys));
+    if (!pthread_keys) {
+      __pthread_mutex_unlock(&pthread_keys_mutex);
+      return ENOMEM;
+    }
+  }
   for (i = 0; i < PTHREAD_KEYS_MAX; i++) {
     if (! pthread_keys[i].in_use) {
       /* Mark key in use */
@@ -63,7 +69,7 @@ int pthread_key_delete(pthread_key_t key)
     pthread_descr self = thread_self();
 
     __pthread_mutex_lock(&pthread_keys_mutex);
-    if (key >= PTHREAD_KEYS_MAX || !pthread_keys[key].in_use) {
+    if (key >= PTHREAD_KEYS_MAX || !pthread_keys || !pthread_keys[key].in_use) {
 	__pthread_mutex_unlock(&pthread_keys_mutex);
 	return EINVAL;
     }
@@ -101,7 +107,7 @@ int pthread_setspecific(pthread_key_t key, const void * pointer)
     pthread_descr self = thread_self();
     unsigned int idx1st, idx2nd;
 
-    if (key >= PTHREAD_KEYS_MAX || !pthread_keys[key].in_use)
+    if (key >= PTHREAD_KEYS_MAX || !pthread_keys || !pthread_keys[key].in_use)
 	return EINVAL;
     idx1st = key / PTHREAD_KEY_2NDLEVEL_SIZE;
     idx2nd = key % PTHREAD_KEY_2NDLEVEL_SIZE;
@@ -127,7 +133,7 @@ void * pthread_getspecific(pthread_key_t key)
     idx1st = key / PTHREAD_KEY_2NDLEVEL_SIZE;
     idx2nd = key % PTHREAD_KEY_2NDLEVEL_SIZE;
     if (THREAD_GETMEM_NC(self, p_specific[idx1st]) == NULL
-	    || !pthread_keys[key].in_use)
+	    || !pthread_keys || !pthread_keys[key].in_use)
 	return NULL;
     return THREAD_GETMEM_NC(self, p_specific[idx1st])[idx2nd];
 }
