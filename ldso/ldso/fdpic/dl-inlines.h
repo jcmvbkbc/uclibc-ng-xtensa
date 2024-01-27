@@ -177,7 +177,7 @@ _dl_funcdesc_for (void *entry_point, void *got_value)
 		tpnt->funcdesc_ht = ht;
 	}
 
-	entry = htab_find_slot(ht, entry_point, 1, hash_pointer, eq_pointer);
+	entry = (struct funcdesc_value **)htab_find_slot(ht, entry_point, 1, hash_pointer, eq_pointer);
 
 	if (entry == NULL)
 		_dl_exit(1);
