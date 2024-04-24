@@ -63,9 +63,19 @@ _dl_linux_resolve:
 	mov	a2, a10
 	mov	a3, a11
 	/* Call the fixup function.  */
+#if defined(__FDPIC__)
+	movi	a0, _dl_linux_resolver@GOTOFFFUNCDESC
+	add	a0, a0, a11
+	l32i	a11, a0, 4
+	l32i	a0, a0, 0
+	callx0	a0
+	l32i	a10, a2, 0
+	l32i	a11, a2, 4
+#else
 	movi	a0, _dl_linux_resolver
 	callx0	a0
 	mov	a10, a2
+#endif
 
 	/* Restore incoming arguments from stack and deallocate reservation.  */
 	l32i	a0, a1, 0
